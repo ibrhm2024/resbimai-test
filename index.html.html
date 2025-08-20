@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarım Konu Sorusu MVP</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 16px; background: #f5f5f5; }
+    .container { max-width: 500px; margin: 0 auto; background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 7px rgba(0,0,0,.1); }
+    h2 { margin-top: 0; }
+    button { padding: 10px; font-size: 1rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 12px; }
+    button:hover { background: #218838; }
+    .question img { width: 100%; height: auto; border-radius: 4px; margin-bottom: 8px; }
+    .results { padding: 12px; background: #e9ecef; border-radius: 4px; margin: 16px 0; font-weight: bold; }
+    .options { display: flex; flex-direction: column; gap: 8px; }
+    .options button { background: #007bff; }
+    .options button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <h2>Tarım Ürünü Soru Oluşturucu</h2>
+  <label for="topic">Konu Başlığı:</label>
+  <input type="text" id="topic" placeholder="Örneğin: Karadeniz Bölgesi Tarım Ürünleri">
+  <button id="startBtn">Başlat</button>
+</div>
+
+<script>
+(function() {
+  const app = document.getElementById('app');
+  const images = {
+    cay: 'https://image.milimaj.com/i/milliyet/75/869x477/68273ff8a4079c3bdc7fc3a7.jpg',
+    findik: 'https://image.milimaj.com/i/milliyet/75/869x477/68679759d13a6e6d2d968293.jpg',
+    misir: 'https://image.milimaj.com/i/milliyet/75/0x0/5fd9625c554287176412ffc7.jpg'
+  };
+
+  function createQuiz(topic) {
+    const questions = [
+      {
+        key: 'cay',
+        img: images.cay,
+        text: 'Çay hangi üretim aşamasında "fermantasyon" işlemine tabi tutulur?',
+        options: ['Toplama', 'Kurutma', 'Fermantasyon', 'Demleme'],
+        answer: 'Fermantasyon'
+      },
+      {
+        key: 'misir',
+        img: images.misir,
+        text: 'Mısırın püskül ve koçanları hangi amaçla kullanılır?',
+        options: ['Sadece hayvan yemi', 'Süs eşyası', 'Dölleme ve tohum koruma', 'Yalnızca yakıt'],
+        answer: 'Dölleme ve tohum koruma'
+      },
+      {
+        key: 'findik',
+        img: images.findik,
+        text: 'Fındık hangi iklim koşullarında daha verimli yetişir?',
+        options: ['Çöl iklimi', 'Ilıman ve yağışlı iklim', 'Kutup iklimi', 'Karasal iklim'],
+        answer: 'Ilıman ve yağışlı iklim'
+      }
+    ];
+
+    let totalScore = 0;
+    let currentIndex = 0;
+
+    app.innerHTML = '';
+
+    const title = document.createElement('h2');
+    title.textContent = `Konu: ${topic}`;
+    app.appendChild(title);
+
+    const results = document.createElement('div');
+    results.className = 'results';
+    results.textContent = 'Puan: 0';
+    app.appendChild(results);
+
+    const qContainer = document.createElement('div');
+    qContainer.className = 'question';
+    app.appendChild(qContainer);
+
+    function showQuestion(index) {
+      const q = questions[index];
+      qContainer.innerHTML = '';
+
+      const img = document.createElement('img');
+      img.src = q.img;
+      qContainer.appendChild(img);
+
+      const qText = document.createElement('p');
+      qText.textContent = `Soru ${index + 1}: ${q.text}`;
+      qContainer.appendChild(qText);
+
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'options';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          if (opt === q.answer) {
+            totalScore += 10;
+            results.textContent = `Puan: ${totalScore}`;
+          }
+          currentIndex++;
+          if (currentIndex < questions.length) {
+            showQuestion(currentIndex);
+          } else {
+            showEnd();
+          }
+        });
+        optionsDiv.appendChild(btn);
+      });
+      qContainer.appendChild(optionsDiv);
+    }
+
+    function showEnd() {
+      qContainer.innerHTML = '<h3>Test bitti 🎉</h3><p>Yeni konu başlığı girerek tekrar başlayabilirsiniz.</p>';
+      const newTopicLabel = document.createElement('label');
+      newTopicLabel.textContent = 'Yeni Konu Başlığı Girin:';
+      app.appendChild(newTopicLabel);
+
+      const newTopicInput = document.createElement('input');
+      newTopicInput.type = 'text';
+      newTopicInput.placeholder = 'Yeni konu başlığı...';
+      app.appendChild(newTopicInput);
+
+      const newTopicBtn = document.createElement('button');
+      newTopicBtn.textContent = 'Yeni Sorular Oluştur';
+      newTopicBtn.addEventListener('click', function() {
+        const nt = newTopicInput.value.trim();
+        if (nt) {
+          createQuiz(nt);
+        }
+      });
+      app.appendChild(newTopicBtn);
+    }
+
+    showQuestion(currentIndex);
+  }
+
+  document.getElementById('startBtn').addEventListener('click', function() {
+    const topic = document.getElementById('topic').value.trim();
+    if (topic) {
+      createQuiz(topic);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
